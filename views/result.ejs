@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Water bill result for <%= house.name %>">
+  <title>Bill — <%= house.name %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="watermark">WUC</div>
+  <div class="container">
+
+    <nav class="nav-row">
+      <a href="/house/<%= house.id %>" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        New Reading
+      </a>
+      <a href="/" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Home
+      </a>
+      <span style="font-size:0.85rem;color:#64748b;margin-left:auto;">
+        <strong><%= user.house_name %></strong>
+      </span>
+      <a href="/logout" class="back-link">Logout</a>
+    </nav>
+
+    <div class="page-header">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+      </div>
+      <div>
+        <h1><%= house.name %></h1>
+        <p class="subtitle">Bill calculated for <%= readingDate %></p>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Previous Reading</span>
+        <span class="stat-value"><%= previousReading %> kL</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Current Reading</span>
+        <span class="stat-value"><%= currentReading %> kL</span>
+      </div>
+      <div class="stat-card accent">
+        <span class="stat-label">Consumption</span>
+        <span class="stat-value"><%= consumption %> kL</span>
+      </div>
+    </div>
+
+    <% if (consumption > 0) { %>
+
+      <%- /* ── Helper macro rendered inline ── */ %>
+
+      <!-- Potable Water -->
+      <div class="breakdown">
+        <div class="breakdown-header">
+          <span class="breakdown-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+          </span>
+          <h2>Potable Water</h2>
+          <span class="breakdown-subtotal">P<%= waterSubtotal.toFixed(2) %></span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Block</th><th>kL Used</th><th>Rate</th><th>VAT</th><th>Charge</th></tr>
+          </thead>
+          <tbody>
+            <% waterBreakdown.forEach(b => { %>
+              <tr>
+                <td><%= b.label %></td>
+                <td><%= b.used %></td>
+                <td>P<%= b.rate.toFixed(2) %>/kL</td>
+                <td>
+                  <% if (b.vatExempt) { %>
+                    <span class="vat-badge exempt">Exempt</span>
+                  <% } else { %>
+                    <span class="vat-badge taxable">Incl. P<%= b.vatComponent.toFixed(2) %></span>
+                  <% } %>
+                </td>
+                <td class="amount">P<%= b.charge.toFixed(2) %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Wastewater -->
+      <div class="breakdown">
+        <div class="breakdown-header">
+          <span class="breakdown-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 6c.6.5 1.2 1 2.5 1C6 7 7 5 9 5c2 0 3 2 5 2 1.3 0 1.9-.5 2.5-1"/>
+              <path d="M2 12c.6.5 1.2 1 2.5 1 1.5 0 2.5-2 4.5-2 2 0 3 2 5 2 1.3 0 1.9-.5 2.5-1"/>
+            </svg>
+          </span>
+          <h2>Wastewater / Sewerage</h2>
+          <span class="breakdown-subtotal">P<%= wastewaterSubtotal.toFixed(2) %></span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Block</th><th>kL Used</th><th>Rate</th><th>VAT</th><th>Charge</th></tr>
+          </thead>
+          <tbody>
+            <% wastewaterBreakdown.forEach(b => { %>
+              <tr>
+                <td><%= b.label %></td>
+                <td><%= b.used %></td>
+                <td>P<%= b.rate.toFixed(2) %>/kL</td>
+                <td>
+                  <% if (b.vatExempt) { %>
+                    <span class="vat-badge exempt">Exempt</span>
+                  <% } else { %>
+                    <span class="vat-badge taxable">Incl. P<%= b.vatComponent.toFixed(2) %></span>
+                  <% } %>
+                </td>
+                <td class="amount">P<%= b.charge.toFixed(2) %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Combined VAT Summary -->
+      <div class="vat-summary">
+        <div class="vat-row">
+          <span class="vat-row-label">
+            <svg class="inline-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+            Potable water subtotal
+          </span>
+          <span class="vat-row-value">P<%= waterSubtotal.toFixed(2) %></span>
+        </div>
+        <div class="vat-row">
+          <span class="vat-row-label">
+            <svg class="inline-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 6c.6.5 1.2 1 2.5 1C6 7 7 5 9 5c2 0 3 2 5 2 1.3 0 1.9-.5 2.5-1"/>
+              <path d="M2 12c.6.5 1.2 1 2.5 1 1.5 0 2.5-2 4.5-2 2 0 3 2 5 2 1.3 0 1.9-.5 2.5-1"/>
+            </svg>
+            Wastewater subtotal
+          </span>
+          <span class="vat-row-value">P<%= wastewaterSubtotal.toFixed(2) %></span>
+        </div>
+        <div class="vat-divider"></div>
+        <div class="vat-row">
+          <span class="vat-row-label">VAT-exempt charges (0–5 kL @ 0%)</span>
+          <span class="vat-row-value">P<%= vatExemptTotal.toFixed(2) %></span>
+        </div>
+        <div class="vat-row">
+          <span class="vat-row-label">Taxable charges (incl. 14% VAT)</span>
+          <span class="vat-row-value">P<%= taxableTotal.toFixed(2) %></span>
+        </div>
+        <div class="vat-row vat-component">
+          <span class="vat-row-label">
+            VAT component
+            <span class="vat-formula">( taxable × 14 ÷ 114 )</span>
+          </span>
+          <span class="vat-row-value">P<%= vatAmount.toFixed(2) %></span>
+        </div>
+        <div class="vat-divider"></div>
+        <div class="vat-row vat-total">
+          <span class="vat-row-label">
+            <svg class="inline-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2" ry="2"/>
+              <circle cx="12" cy="12" r="3"/>
+              <line x1="6" y1="12" x2="6.01" y2="12"/>
+              <line x1="18" y1="12" x2="18.01" y2="12"/>
+            </svg>
+            Total Bill (VAT incl.)
+          </span>
+          <span class="vat-row-value total-amount-lg">P<%= totalCharge.toFixed(2) %></span>
+        </div>
+      </div>
+
+    <% } else { %>
+      <div class="alert info">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <span>No consumption this period — enter your actual meter reading to calculate a bill.</span>
+      </div>
+    <% } %>
+
+    <div class="action-row">
+      <a href="/house/<%= house.id %>/history" class="btn-link primary">
+        <svg class="btn-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        View Bill History
+      </a>
+      <a href="/house/<%= house.id %>" class="btn-link">
+        <svg class="btn-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        New Reading
+      </a>
+    </div>
+
+  </div>
+</body>
+</html>

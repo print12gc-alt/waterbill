@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="WUC Water Cost Calculator — track meter readings and calculate bills for your properties.">
+  <title>WUC Water Meter</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="watermark">WUC</div>
+  <div class="container">
+
+    <nav class="nav-row" style="justify-content: flex-end;">
+      <span style="font-size:0.85rem;color:#64748b;margin-right:auto;">
+        Signed in as <strong><%= user.house_name %></strong>
+      </span>
+      <a href="/logout" class="back-link">Logout</a>
+    </nav>
+
+    <div class="page-header">
+      <div class="icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+        </svg>
+      </div>
+      <div>
+        <h1>WUC Water Meter</h1>
+        <p class="subtitle">Select a property to view or enter a reading</p>
+      </div>
+    </div>
+
+    <div class="houses">
+      <% houses.forEach((house, i) => { %>
+        <% const last = lastReadings[house.id]; %>
+        <a href="/house/<%= house.id %>" class="house-card">
+          <div class="house-card-header">
+            <span class="house-card-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </span>
+            <h2><%= house.name %></h2>
+          </div>
+          <% if (last) { %>
+            <div class="last-reading">
+              <span class="reading-label">Last Reading</span>
+              <span class="reading-value"><%= last.meter_reading %> kL</span>
+              <span class="reading-meta">Read on <%= last.reading_date %> &bull; Usage <%= last.consumption %> kL</span>
+              <span class="bill-badge">P<%= last.total_charge.toFixed(2) %></span>
+            </div>
+          <% } else { %>
+            <span class="no-reading">No readings recorded yet</span>
+          <% } %>
+        </a>
+      <% }); %>
+    </div>
+
+    <details class="tariff-info">
+      <summary>WUC Domestic Tariff Blocks (Pula / kL)</summary>
+      <table>
+        <thead><tr><th>Block</th><th>Rate (incl. VAT)</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>0 – 5 kL</td><td>P2.45</td><td>VAT exempt</td></tr>
+          <tr><td>&gt;5 – 10 kL</td><td>P11.41</td><td></td></tr>
+          <tr><td>&gt;10 – 15 kL</td><td>P13.43</td><td></td></tr>
+          <tr><td>&gt;15 – 20 kL</td><td>P25.15</td><td></td></tr>
+          <tr><td>&gt;20 – 40 kL</td><td>P38.69</td><td></td></tr>
+          <tr><td>&gt;40 kL</td><td>P48.38</td><td></td></tr>
+        </tbody>
+      </table>
+    </details>
+  </div>
+</body>
+</html>
